@@ -48,7 +48,7 @@ class NewAIModelForm(forms.Form):
             model.save()
         return model
 
-    def is_valid(self):
+    def is_valid(self, user):
         """
         check if model name is unique for user
         :return:
@@ -56,8 +56,11 @@ class NewAIModelForm(forms.Form):
         valid = super(NewAIModelForm, self).is_valid()
         if not valid:
             return valid
-        if AIModel.objects.filter(model_name=self.cleaned_data['model_name']).exists():
-            self.add_error('model_name', 'Model name already exists')
+        if not self.cleaned_data['code_file'].name.endswith('.py'):
+            self.add_error('code_file', 'Code file must be a .py file')
+            return False
+        if AIModel.objects.filter(user=user, model_name=self.cleaned_data['model_name']).exists():
+            self.add_error('model_name', 'Model name must be unique')
             return False
         return True
 
@@ -99,6 +102,12 @@ class NewProjectForm(forms.Form):
             return valid
         if Project.objects.filter(model=model, data_name=self.cleaned_data['data_name']).exists():
             self.add_error('data_name', 'Data name already exists')
+            return False
+        if not self.cleaned_data['data_file'].name.endswith('.npy'):
+            self.add_error('data_file', 'Data file must be a .npy file')
+            return False
+        if not self.cleaned_data['target_data_file'].name.endswith('.npy'):
+            self.add_error('target_data_file', 'Target data file must be a .npy file')
             return False
         return True
 
