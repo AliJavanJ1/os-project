@@ -22,6 +22,7 @@ class Project(models.Model):
     data_name = models.CharField(max_length=100, blank=False, null=False)
     model = models.ForeignKey(AIModel, on_delete=models.CASCADE)
     data_file = models.FileField(upload_to='data_files')
+    target_data_file = models.FileField(upload_to='data_files')
 
     class Meta:
         unique_together = ('data_name', 'model')

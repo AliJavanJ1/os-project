@@ -69,6 +69,9 @@ class NewProjectForm(forms.Form):
     data_file = forms.FileField(required=True,
                                 label='Data File',
                                 widget=forms.FileInput(attrs={'class': 'form-control'}))
+    target_data_file = forms.FileField(required=True,
+                                       label='Target Data File',
+                                       widget=forms.FileInput(attrs={'class': 'form-control'}))
 
     def save(self, model, commit=True):
         """
@@ -79,7 +82,8 @@ class NewProjectForm(forms.Form):
         """
         project = Project(model=model,
                           data_file=self.cleaned_data['data_file'],
-                          data_name=self.cleaned_data['data_name'])
+                          data_name=self.cleaned_data['data_name'],
+                          target_data_file=self.cleaned_data['target_data_file'])
         if commit:
             project.save()
         return project
