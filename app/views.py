@@ -56,12 +56,13 @@ def models_page(request):
     """
     if request.method == "POST":
         form = NewAIModelForm(request.POST, request.FILES)
-        if form.is_valid():
+        if form.is_valid(user=request.user):
             model = form.save(request.user, commit=True)
             messages.success(request, "Model created successfully.")
             return redirect("app:models")
         messages.error(request, "Unsuccessful creation. Invalid information.")
-    form = NewAIModelForm()
+    else:
+        form = NewAIModelForm()
     models = AIModel.objects.filter(user=request.user)
     return render(request=request, template_name="app/models.html", context={"new_model_form": form, "models": models})
 
@@ -106,7 +107,8 @@ def projects_page(request, model_name):
                     messages.success(request, "Project created successfully.")
                     return redirect("app:projects", model_name=model.model_name)
                 messages.error(request, "Unsuccessful creation. Invalid information.")
-            form = NewProjectForm()
+            else:
+                form = NewProjectForm()
             projects = model.project_set.all()
             return render(request=request,
                           template_name="app/projects.html",
@@ -166,7 +168,8 @@ def runs_page(request, model_name, data_name):
                     messages.success(request, "Run created successfully.")
                     return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
                 messages.error(request, "Unsuccessful creation. Invalid information.")
-            form = NewRunForm()
+            else:
+                form = NewRunForm()
             runs = project.run_set.all()
             return render(request=request,
                           template_name="app/runs.html",
