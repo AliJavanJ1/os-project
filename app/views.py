@@ -119,6 +119,7 @@ def projects_page(request, model_name):
         return redirect("app:models")
 
 
+@login_required(login_url='app:login')
 def delete_project(request, model_name, data_name):
     """
     Delete a project by this id if it belongs to current user otherwise show proper error messages
@@ -182,6 +183,7 @@ def runs_page(request, model_name, data_name):
         return redirect("app:projects", model_name=model.model_name)
 
 
+@login_required(login_url='app:login')
 def delete_run(request, model_name, data_name, run_id):
     """
     Delete a run by this id if it belongs to current user otherwise show proper error messages
@@ -195,9 +197,13 @@ def delete_run(request, model_name, data_name, run_id):
         model = AIModel.objects.get(model_name=model_name)
         project = model.project_set.get(data_name=data_name)
         run = project.run_set.get(id=run_id)
-        run.delete()
-        messages.success(request, "Run deleted successfully.")
-        return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
+        if model.user == request.user:
+            run.delete()
+            messages.success(request, "Run deleted successfully.")
+            return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
+        else:
+            messages.error(request, "You are not allowed to delete this run.")
+            return redirect("app:models")
     except AIModel.DoesNotExist:
         messages.error(request, "Model does not exist.")
         return redirect("app:models")
@@ -209,6 +215,7 @@ def delete_run(request, model_name, data_name, run_id):
         return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
 
 
+@login_required(login_url='app:login')
 def run_details_page(request, model_name, data_name, run_id):
     """
     Show details of a run if it belongs to current user otherwise show proper error messages
@@ -222,9 +229,14 @@ def run_details_page(request, model_name, data_name, run_id):
         model = AIModel.objects.get(model_name=model_name)
         project = model.project_set.get(data_name=data_name)
         run = project.run_set.get(id=run_id)
-        return render(request=request,
-                      template_name="app/run_details.html",
-                      context={"model_name": model.model_name, "data_name": project.data_name, "run": run})
+        if model.user == request.user:
+            return render(request=request,
+                          template_name="app/run_details.html",
+                          context={"model_name": model.model_name, "data_name": project.data_name,
+                                   "run": run})
+        else:
+            messages.error(request, "You are not allowed to view this model.")
+            return redirect("app:models")
     except AIModel.DoesNotExist:
         messages.error(request, "Model does not exist.")
         return redirect("app:models")
