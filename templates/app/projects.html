@@ -1,0 +1,54 @@
+{% extends "app/home.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <!-- Breadcrumb -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-11">
+                <h1>
+                    <a href="{% url 'app:models' %}">All Models</a> /
+                    {{ model_name|upper }} projects
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- A list of all projects for the model -->
+    {% for project in projects %}
+        <div class="container py-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-10">
+                            <h1><a href="{% url 'app:runs' model_name project.data_name %}">{{ project.data_name }}</a></h1>
+                        </div>
+                        <div class="col-2" dir="rtl">
+                            <form method="POST" action="{% url 'app:delete_project' model_name project.data_name %}">
+                                {% csrf_token %}
+                                <button class="btn btn-danger" type="submit">X</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-10">
+                            <h3><a href="{{ project.data_file.url }}">Dataset</a></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+    <!-- A form to create a new project -->
+    <div class="container py-5">
+        <h1>Upload New Dataset</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ new_project_form|crispy }}
+            <button class="btn btn-primary" type="submit">Create</button>
+        </form>
+    </div>
+{% endblock %}

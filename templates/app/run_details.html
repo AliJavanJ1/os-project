@@ -1,0 +1,27 @@
+{% extends "app/home.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+    <!-- Breadcrumb and Delete button -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-11">
+                <h2>
+                    <a href="{% url 'app:models' %}">All Models</a> /
+                    <a href="{% url 'app:projects' model_name %}">Projects</a> /
+                    <a href="{% url 'app:runs' model_name data_name %}">Runs</a> /
+                    {{ run }}
+                </h2>
+            </div>
+            <!-- Delete button -->
+            <div class="col-1">
+                <form action="{% url 'app:delete_run' model_name data_name run.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results table -->
+{% endblock %}

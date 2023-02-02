@@ -1,0 +1,43 @@
+{% extends "app/home.html" %}
+
+{% block content %}
+    {% load crispy_forms_tags %}
+
+    <!-- List of all models -->
+    {% for model in models %}
+        <div class="container py-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-10">
+                            <h1><a href="{% url 'app:projects' model.model_name %}">{{ model.model_name }}</a></h1>
+                        </div>
+                        <div class="col-2" dir="rtl">
+                            <form method="POST" action="{% url 'app:delete_model' model.model_name %}">
+                                {% csrf_token %}
+                                <button class="btn btn-danger" type="submit">X</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-10">
+                            <h3><a href="{{ model.code_file.url }}">Code</a></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+    <!-- Create new model -->
+    <div class="container py-5">
+        <h1>Upload New AI Model</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ new_model_form|crispy }}
+            <button class="btn btn-primary" type="submit">Create</button>
+        </form>
+    </div>
+{% endblock %}
