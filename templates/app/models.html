@@ -10,7 +10,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-10">
-                            <h1><a href="{% url 'app:projects' model.model_name %}">{{ model.model_name }}</a></h1>
+                            <h1><a href="{% url 'app:projects' model.model_name %}">{{ model.model_name }} ({{ model.get_type_display }})</a></h1>
                         </div>
                         <div class="col-2" dir="rtl">
                             <form method="POST" action="{% url 'app:delete_model' model.model_name %}">

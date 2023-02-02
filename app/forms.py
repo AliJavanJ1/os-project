@@ -28,6 +28,10 @@ class NewAIModelForm(forms.Form):
     code_file = forms.FileField(required=True,
                                 label='Code File',
                                 widget=forms.FileInput(attrs={'class': 'form-control'}))
+    type = forms.ChoiceField(required=True,
+                             label='Type',
+                             choices=AIModel.ModelType.choices,
+                             widget=forms.Select(attrs={'class': 'form-control'}))
 
     def save(self, user, commit=True):
         """
@@ -38,7 +42,8 @@ class NewAIModelForm(forms.Form):
         """
         model = AIModel(user=user,
                         code_file=self.cleaned_data['code_file'],
-                        model_name=self.cleaned_data['model_name'])
+                        model_name=self.cleaned_data['model_name'],
+                        type=self.cleaned_data['type'])
         if commit:
             model.save()
         return model
