@@ -18,7 +18,7 @@ class AIModel(models.Model):
         unique_together = ('model_name', 'user')
 
     def __str__(self):
-        return self.model_name
+        return self.model_name + '_' + self.user.__str__
 
 
 class Project(models.Model):
@@ -31,7 +31,7 @@ class Project(models.Model):
         unique_together = ('data_name', 'model')
 
     def __str__(self):
-        return self.data_name
+        return self.data_name + '_' + self.model.__str__ 
 
 
 class Run(models.Model):
@@ -41,7 +41,13 @@ class Run(models.Model):
 
     start_time = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    result_timeseries = models.FileField(upload_to='result_timeseries', default='result_timeseries/result_file.csv')
+    iostat_cpu_data = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.csv')
+    iostat_disk_data = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.csv')
+    iostat_cpu_chart = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.jpeg')
+    iostat_disk_chart = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.jpeg')
+    blktrace_data = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.csv')
+    blktrace_chart = models.FileField(upload_to='result_timeseries', default='result_timeseries/temp.jpeg')
+    is_running = models.BooleanField(default=False)
     type = models.CharField(max_length=10, choices=RunType.choices, blank=False, null=False)
     split_ratio = models.FloatField(default=0.8,
                                     blank=False,
@@ -50,3 +56,13 @@ class Run(models.Model):
 
     def __str__(self):
         return f'{self.start_time.strftime("%Y-%m-%d %H:%M:%S")}: {self.get_type_display()} ration: {self.split_ratio}'
+
+    def save(self, *args, **kwargs):
+        directory = 'result_timeseries/' + self.project.__str__ + '/'
+        self.iostat_cpu_data= directory + 'iostat_cpu_data.csv'
+        self.iostat_disk_data = directory + 'iostat_disk_data.csv'
+        self.iostat_cpu_chart = directory + 'iostat_cpu_chart.jpeg'
+        self.iostat_disk_chart = directory + 'iostat_disk_chart.jpeg'
+        self.blktrace_data = directory + 'blktrace_data.csv'
+        self.blktrace_chart = directory + 'blktrace_chart.jpeg'
+        super(Run, self).save(*args, **kwargs)
