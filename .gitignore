@@ -1,3 +1,7 @@
 .idea
 db.sqlite3
-/media
+/media/*
+!/media/__init__.py
+!/media/code_files
+/media/code_files/*
+!/media/code_files/__init__.py

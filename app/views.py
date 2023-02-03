@@ -2,6 +2,8 @@ import queue
 
 import numpy
 from django.shortcuts import render, redirect
+from django_q.tasks import async_task
+
 from .forms import NewUserForm, NewAIModelForm, NewProjectForm, NewRunForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -157,7 +159,14 @@ def runs_page(request, model_name, data_name):
             form = NewRunForm(request.POST)
             if form.is_valid():
                 run = form.save(project, commit=True)
-                # add to queue
+                if model.type == AIModel.ModelType.SCIKIT:
+                    async_task("app.services.train_scikit_learn", run.id, hook="app.services.hook_after_train")
+                elif model.type == AIModel.ModelType.TENSORFLOW:
+                    async_task("app.services.train_tensorflow", run.id, hook="app.services.hook_after_train")
+                elif model.type == AIModel.ModelType.PYTORCH:
+                    async_task("app.services.train_pytorch", run.id, hook="app.services.hook_after_train")
+                else:
+                    async_task("app.services.train_opencv", run.id, hook="app.services.hook_after_train")
                 messages.success(request, "Run created successfully.")
                 return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
             messages.error(request, "Unsuccessful creation. Invalid information.")
@@ -230,18 +239,3 @@ def run_details_page(request, model_name, data_name, run_id):
     except Run.DoesNotExist:
         messages.error(request, "Run does not exist.")
         return redirect("app:runs", model_name=model.model_name, data_name=project.data_name)
-
-
-# a fifo queue of runs that run by one worker thread
-run_queue = queue.Queue()
-
-
-def consume_runs():
-    """
-    A worker thread that consumes runs from run_queue and start them
-    :return:
-    """
-    while True:
-        run = run_queue.get()
-        # pass the run to the model to start it
-        run_queue.task_done()

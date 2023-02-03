@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'app',
     'crispy_forms',
+    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -146,3 +147,26 @@ MESSAGE_TAGS = {
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+Q_CLUSTER = {
+    'name': 'os_project',
+    'workers': 1,
+    'timeout': 10000,
+    'retry': 20000,
+    'recycle': 500,
+    'compress': True,
+    'save_limit': 250,
+    'queue_limit': 10,
+    'cpu_affinity': 3,
+    'label': 'Django Q',
+    'redis': {
+        'host': 'localhost',
+        'port': 6379,
+        'db': 0,
+        'password': None,
+        'socket_timeout': None,
+        'charset': 'utf-8',
+        'errors': 'strict',
+        'unix_socket_path': None,
+    }
+}
