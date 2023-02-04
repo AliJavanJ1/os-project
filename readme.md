@@ -27,4 +27,12 @@ go to the project directory (where the Pipfile is located) and run:
 ### run django server
 `python3 manage.py runserver`
 
+# django-q monitors
+### for checking the status of the django-q cluster run:
+`python3 manage.py qmonitor`
+### for checking the status of the django-q cluster run:
+`python3 manage.py qinfo`
+### for checking the status of the django-q cluster run:
+`python manage.py qmemory`
+
 
